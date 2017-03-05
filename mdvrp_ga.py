@@ -2,7 +2,7 @@ import random, math, point, numpy, os
 import matplotlib.pyplot as plt 
 
 script_dir = os.path.dirname(os.path.realpath('__file__'))
-p23 = os.path.join(script_dir, 'Data', 'Data Files', 'pr10') 
+p23 = os.path.join(script_dir, 'Data', 'Data Files', 'pr02') 
 
 class Chromosome(object):
     """docstring for Chromosome"""
@@ -106,7 +106,21 @@ class MDVRPSolution(object):
         return load
 
     def write_to_file(self):
-        pass
+        with open('p01_s', 'w') as f:
+            f.write("{:.2f}".format(self.total_distance))
+            f.write('\n')
+            for i in range(len(self.tours)):
+                depot = self.tours[i]
+                for j in range(len(depot)):
+                    tour = depot[j]
+                    f.write(str(i+1)+' ')
+                    f.write(str(j+1)+' ')
+                    f.write("{:.2f}".format(self._tour_dist(tour))+' ')
+                    f.write('0 ')
+                    for pnt in tour[1:-1]:
+                        f.write(str(pnt.id)+' ')
+                    f.write('0')
+                    f.write('\n')
 
     def plot(self):
         customer_x = [c.x for c in self.C]
@@ -136,7 +150,7 @@ def get_problem_set(filename):
     #customer list
     C = []
     for line in dataset[1+t:1+t+n]:
-        c = [float(i) for i in line[:5]]
+        c = [int(line[0])] + [float(i) for i in line[1:5]]
         c = point.Customer(*tuple(c))
         C.append(c)
     return C, D
@@ -247,11 +261,12 @@ def main():
     C, D = get_problem_set(p23)
     population = initial_population(C, D, 100)
     sort_pop(population)
-    for i in range(5):
+    for i in range(10):
         population = genetic_algorithm(population, 100)
         print('Gen ', i+1)
         pop_info(population)
         print('-----------------')
+    population[0].get_solution().write_to_file()    
     population[0].get_solution().plot()
 
 if __name__ == '__main__':
